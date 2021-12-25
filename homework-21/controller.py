@@ -1,6 +1,6 @@
-from homework21_labirint.fields import Field, Cell
-from homework21_labirint.hero import Ghost
-from homework21_labirint.terrain import Grass, Wall, Trap, Key, Door
+from fields import Field, Cell
+from hero import Ghost
+from terrain import Grass, Wall, Trap, Key, Door
 
 
 class GameController:
@@ -67,7 +67,6 @@ class GameController:
                 cell_obj = game_field[cols][rows]
                 game_field[cols][rows] = self._make_cell_terrain(cell_obj, coord)
         self.field = Field(game_field, self.hero, self.hero.get_coordinates())
-        self._draw_field()
 
     # Метод для начала игры и взаимодействия с игроком
     def play(self):
@@ -76,33 +75,22 @@ class GameController:
             print("Добро пожаловать в игру, введите пожалуйста направление для движения: "
                   "w - вверх, a - влево, s - вниз, d - вправо\n"
                   "Вы можете выйти с помощью команд - stop/exit")
+            self._draw_field()
             command = input()
             if command == 'stop' or command == 'exit':
                 self.game_on = False
                 break
             if command == 'w':
                 self.field.move_unit_up()
-                if not self.hero.is_alive():
-                    self.game_on = False
-                    break
-                self._draw_field()
             if command == 'a':
                 self.field.move_unit_left()
-                if not self.hero.is_alive():
-                    self.game_on = False
-                    break
-                self._draw_field()
             if command == 's':
                 self.field.move_unit_down()
-                if not self.hero.is_alive():
-                    self.game_on = False
-                    break
-                self._draw_field()
             if command == 'd':
                 self.field.move_unit_right()
-                if not self.hero.is_alive():
-                    self.game_on = False
-                    break
-                self._draw_field()
+            if not self.hero.is_alive():
+                self.game_on = False
+                break
+            self._draw_field()
         else:
             print('Game Over')

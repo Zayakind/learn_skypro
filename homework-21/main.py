@@ -1,4 +1,4 @@
-from homework21_labirint.controller import GameController
+from controller import GameController
 
 if __name__ == '__main__':
     gc = GameController()

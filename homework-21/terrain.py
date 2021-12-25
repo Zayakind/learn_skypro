@@ -38,7 +38,7 @@ class Grass(Terrain):
 
 
 class Wall(Terrain):
-    """Террайн стены, проходимый."""
+    """Террайн стены, не проходимый."""
 
     def __init__(self):
         super().__init__(terrain='Wall', is_walkable=False)
@@ -47,9 +47,8 @@ class Wall(Terrain):
 class Door(Terrain):
     """Класс двери, проверящий наличие ключа у игрока и если есть, переворачивает флаг escaped."""
 
-    def __init__(self, terrain='Door', is_walkable=True):
-        super().__init__(terrain, is_walkable)
-        self.terrain = terrain
+    def __init__(self):
+        super().__init__(terrain='Door', is_walkable=True)
 
     def step_on(self, unit):
         """
@@ -62,9 +61,8 @@ class Door(Terrain):
 class Key(Terrain):
     """Объект ключа, при нахождении игроком меняет флаг got_key."""
 
-    def __init__(self, terrain='Key', is_walkable=True):
-        super().__init__(terrain, is_walkable)
-        self.terrain = terrain
+    def __init__(self):
+        super().__init__(terrain='Key', is_walkable=True)
 
     def step_on(self, unit):
         """

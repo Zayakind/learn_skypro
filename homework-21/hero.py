@@ -38,7 +38,8 @@ class Unit:
         if self.hp > 0:
             return True
         else:
-            print("You dead")
+            print('You dead!')
+            return False
 
     def get_damage(self, unit, damage):
         """
@@ -47,7 +48,6 @@ class Unit:
         :param damage:
         """
         unit.hp -= damage
-        unit.is_alive()
 
     def set_coordinates(self, coord: tuple):
         """

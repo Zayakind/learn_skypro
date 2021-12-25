@@ -1,4 +1,4 @@
-from homework21_labirint.terrain import Grass
+from terrain import Grass
 
 
 class Cell:
@@ -56,8 +56,6 @@ class Field:
             return print("Место не проходится, выберите другое направление")
         self.field[x][y].set_obj(Grass())
         cell.step_on(self.unit)
-        if not self.unit.is_alive():
-            return False
         self._set_cell(self.unit, x-1, y)
         coord = (x-1, y,)
         self.unit.set_coordinates(coord)
@@ -73,8 +71,6 @@ class Field:
             return print("Место не проходится, выберите другое направление")
         self.field[x][y].set_obj(Grass())
         cell.step_on(self.unit)
-        if not self.unit.is_alive():
-            return False
         self._set_cell(self.unit, x+1, y)
         coord = (x+1, y,)
         self.unit.set_coordinates(coord)
@@ -90,8 +86,6 @@ class Field:
             return print("Место не проходится, выберите другое направление")
         self.field[x][y].set_obj(Grass())
         cell.step_on(self.unit)
-        if not self.unit.is_alive():
-            return False
         self._set_cell(self.unit, x, y+1)
         coord = (x, y+1,)
         self.unit.set_coordinates(coord)
