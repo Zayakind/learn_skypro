@@ -1,5 +1,6 @@
-import json
 import os.path
+
+import flask
 from flask import Flask, request
 
 app = Flask(__name__)
@@ -48,27 +49,37 @@ def limit_line(file, limit):
     return file[:limit+1]
 
 
-@app.route('/perform_query', methods=['POST'])
-def perform_query():
-    req = request.json
-    if not req:
-        return json.dumps('{"error": "No body request!"}'), 400
+def parsing_body(req):
     cmd1 = get_func(req['cmd1'])
     value1 = req['value1']
     cmd2 = get_func(req['cmd2'])
     value2 = req['value2']
     file_name = req['file_name']
-    if not os.path.exists(f'{DATA_DIR}\\{file_name}'):
-        return json.dumps('{"error": "No File name!"}'), 400
-    response_data = []
+    return cmd1, value1, cmd2, value2, file_name
+
+
+def parsing_logs(req):
+    cmd1, value1, cmd2, value2, file_name = parsing_body(req)
+    data = []
     with open(f'{DATA_DIR}\\{file_name}', 'r') as f:
         file = f.readlines(8096)
         while file:
             file = cmd1(file, value1)
             file = cmd2(file, value2)
-            response_data.append(''.join(file))
+            data.append(''.join(file))
             file = f.readlines(8096)
-        return app.response_class(''.join(response_data), content_type="text/plain")
+    return data
+
+
+@app.route('/perform_query', methods=['POST'])
+def perform_query():
+    req = request.json
+    if len({'value1', 'value2', 'cmd1', 'cmd2', 'file_name'} and set(req)) != 5:
+        return flask.jsonify(data='{"ERROR": "No body valid!"}'), 400
+    if not os.path.exists(f'{DATA_DIR}\\{req["file_name"]}'):
+        return flask.jsonify(data='{"ERROR": "No File name!"}'), 400
+    response_data = parsing_logs(req)
+    return app.response_class(''.join(response_data), content_type="text/plain")
 
 
 if __name__ == '__main__':
