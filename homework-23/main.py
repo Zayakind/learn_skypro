@@ -28,7 +28,7 @@ def filtered(file, value):
 
 def mapped(file, col):
     col = int(col)
-    return list(map(lambda line: line.split(' ')[col], file))
+    return list(map(lambda line: line.split(' ')[col] if (len(line) > 3) else None, file))
 
 
 def unique(file, pos):
@@ -60,13 +60,16 @@ def perform_query():
     file_name = req['file_name']
     if not os.path.exists(f'{DATA_DIR}\\{file_name}'):
         return json.dumps('{"error": "No File name!"}'), 400
+    response_data = []
     with open(f'{DATA_DIR}\\{file_name}', 'r') as f:
-        file = f.read()
-        file = file.split('\n')
-        file = cmd1(file, value1)
-        file = cmd2(file, value2)
-        return app.response_class(file, content_type="text/plain")
+        file = f.readlines(8096)
+        while file:
+            file = cmd1(file, value1)
+            file = cmd2(file, value2)
+            response_data.append(''.join(file))
+            file = f.readlines(8096)
+        return app.response_class(''.join(response_data), content_type="text/plain")
 
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
