@@ -1,3 +1,4 @@
+import json
 import os.path
 from flask import Flask, request
 
@@ -8,29 +9,64 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
 
+def get_func(cmd):
+    if cmd == 'filter':
+        return filtered
+    if cmd == 'map':
+        return mapped
+    if cmd == 'unique':
+        return unique
+    if cmd == 'sort':
+        return sort_file
+    if cmd == 'limit':
+        return limit_line
+
+
+def filtered(file, value):
+    return list(filter(lambda x: value in x, file))
+
+
+def mapped(file, col):
+    col = int(col)
+    return list(map(lambda line: line.split(' ')[col], file))
+
+
+def unique(file, pos):
+    return set(file)
+
+
+def sort_file(file, desc):
+    if desc == 'asc':
+        desc = True
+    else:
+        desc = False
+    return sorted(file, reverse=desc)
+
+
+def limit_line(file, limit):
+    limit = int(limit)
+    return file[:limit+1]
+
+
 @app.route('/perform_query', methods=['POST'])
 def perform_query():
-    resp = request.json
-    if not resp:
-        return "No body request!", 400
-    # получить параметры query и file_name из request.args, при ошибке вернуть ошибку 400
-    file_name = resp['file_name']
-    print(resp, file_name)
+    req = request.json
+    if not req:
+        return json.dumps('{"error": "No body request!"}'), 400
+    cmd1 = get_func(req['cmd1'])
+    value1 = req['value1']
+    cmd2 = get_func(req['cmd2'])
+    value2 = req['value2']
+    file_name = req['file_name']
     if not os.path.exists(f'{DATA_DIR}\\{file_name}'):
-        print(f'{DATA_DIR}\\{file_name}')
-        return "No File name!", 400
-    # проверить, что файла file_name существует в папке DATA_DIR, при ошибке вернуть ошибку 400
-    file = get_logs(resp['file_name'])
-    return app.response_class(f'{file}', content_type="text/plain")
-    # с помощью функционального программирования (функций filter, map), итераторов/генераторов сконструировать запрос
-    # вернуть пользователю сформированный результат
-    # return app.response_class('', content_type="text/plain")
-
-
-def get_logs(name):
-    with open(f'{DATA_DIR}\\{name}', 'r') as f:
-        return f
+        return json.dumps('{"error": "No File name!"}'), 400
+    with open(f'{DATA_DIR}\\{file_name}', 'r') as f:
+        file = f.read()
+        file = file.split('\n')
+        file = cmd1(file, value1)
+        file = cmd2(file, value2)
+        return app.response_class(file, content_type="text/plain")
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
